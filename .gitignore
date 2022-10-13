@@ -7,5 +7,6 @@ node_modules
 yarn.*
 yarn-*
 build
-*.env
+.env.prod
+.env
 pnpm-lock.yaml
