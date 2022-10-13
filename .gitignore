@@ -1,3 +1,10 @@
 .history
 dist
 node_modules
+.git
+.idea
+.vscode
+yarn.*
+yarn-*
+build
+*.env

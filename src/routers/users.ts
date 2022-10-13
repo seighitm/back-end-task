@@ -28,7 +28,7 @@ export function initUsersRouter(sequelizeClient: SequelizeClient): Router {
 }
 
 function initListUsersRequestHandler(sequelizeClient: SequelizeClient): RequestHandler {
-  return async function listUsersRequestHandler(req, res, next): Promise<void> {
+  return async function listUsersRequestHandler(req, res, next): Promise<any> {
     const { models } = sequelizeClient;
 
     try {
@@ -52,7 +52,7 @@ function initListUsersRequestHandler(sequelizeClient: SequelizeClient): RequestH
 }
 
 function initCreateUserRequestHandler(sequelizeClient: SequelizeClient): RequestHandler {
-  return async function createUserRequestHandler(req, res, next): Promise<void> {
+  return async function createUserRequestHandler(req, res, next): Promise<any> {
     try {
       // NOTE(roman): missing validation and cleaning
       const { type, name, email, password } = req.body as CreateUserData;
@@ -67,7 +67,7 @@ function initCreateUserRequestHandler(sequelizeClient: SequelizeClient): Request
 }
 
 function initLoginUserRequestHandler(sequelizeClient: SequelizeClient): RequestHandler {
-  return async function loginUserRequestHandler(req, res, next): Promise<void> {
+  return async function loginUserRequestHandler(req, res, next): Promise<any> {
     const { models } = sequelizeClient;
 
     try {
@@ -97,7 +97,7 @@ function initLoginUserRequestHandler(sequelizeClient: SequelizeClient): RequestH
 }
 
 function initRegisterUserRequestHandler(sequelizeClient: SequelizeClient): RequestHandler {
-  return async function createUserRequestHandler(req, res, next): Promise<void> {
+  return async function createUserRequestHandler(req, res, next): Promise<any> {
     try {
       // NOTE(roman): missing validation and cleaning
       const { name, email, password } = req.body as Omit<CreateUserData, 'type'>;
@@ -111,7 +111,7 @@ function initRegisterUserRequestHandler(sequelizeClient: SequelizeClient): Reque
   };
 }
 
-async function createUser(data: CreateUserData, sequelizeClient: SequelizeClient): Promise<void> {
+async function createUser(data: CreateUserData, sequelizeClient: SequelizeClient): Promise<any> {
   const { type, name, email, password } = data;
 
   const { models } = sequelizeClient;

@@ -3,22 +3,14 @@ import express from 'express';
 import { initSequelizeClient } from './sequelize';
 import { initUsersRouter } from './routers';
 import { initErrorRequestHandler, initNotFoundRequestHandler } from './middleware';
+import config from './config';
 
 const PORT = 8080;
 
 async function main(): Promise<void> {
   const app = express();
 
-  // TODO(roman): store these credentials in some external configs
-  // so that they don't end up in the git repo
-  const sequelizeClient = await initSequelizeClient({
-    dialect: 'postgres',
-    host: 'localhost',
-    port: 5432,
-    username: 'postgres',
-    password: 'postgres',
-    database: 'bend-backend-task',
-  });
+  const sequelizeClient = await initSequelizeClient({...config.database});
 
   app.use(express.json());
 
