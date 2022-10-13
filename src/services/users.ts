@@ -25,7 +25,7 @@ export async function createUser(data: CreateUserData, sequelizeClient: Sequeliz
         raw: true,
     }) as Pick<User, 'id' | 'name' | 'email'> | null;
 
-    if (!isNullOrUndefined(similarUser)) {
+    if (similarUser) {
         if (similarUser.name === name) {
             throw new BadRequestError('NAME_ALREADY_USED');
         } else if (similarUser.email === email) {

@@ -12,7 +12,7 @@
     "start": "node --enable-source-maps dist",
     "compile": "shx rm -rf dist && tsc -p tsconfig.json",
     "start:slow": "npm run compile && npm start",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "cross-env NODE_ENV=testing mocha --experimental-json-modules tests/createPost.test.ts "
   },
   "keywords": [],
   "author": "",
