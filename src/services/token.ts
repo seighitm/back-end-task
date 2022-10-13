@@ -36,8 +36,14 @@ export const generateTokens = (data: TokenRequestData): TokenReesponseData => {
     };
 };
 
-export function isValidAccessToken(token: string): { id: number } {
-    return jwt.verify(token, config.auth.accessToken) as { id: number };
+export function isValidAccessToken(token: string): boolean {
+    try {
+        jwt.verify(token, config.auth.accessToken);
+        return true;
+    } catch (e) {
+        console.log(e);
+        return false;
+    }
 }
 
 export function validateRefreshToken(refreshToken: string): { id: number } {

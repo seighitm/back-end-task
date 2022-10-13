@@ -6,7 +6,7 @@ import {BadRequestError, ForbiddenError} from '../errors';
 import {UserType} from '../types';
 import {Op} from 'sequelize';
 
-export async function createPost(data: { title: string, content: string, authorId: number }, sequelizeClient: SequelizeClient): Promise<Post> {
+export async function createPost(data: { title: string, content: string, authorId: number | null }, sequelizeClient: SequelizeClient): Promise<Post> {
     const {models} = sequelizeClient;
 
     const {title, content, authorId} = data;
@@ -25,19 +25,17 @@ export async function createPost(data: { title: string, content: string, authorI
 }
 
 export async function updatePost(data: {
-    userType: UserType,
+    userType: UserType | null,
+    authorId: number | null,
     postId: string,
     title: string,
     content: string,
-    authorId: number
 }, sequelizeClient: SequelizeClient): Promise<Post> {
     const {models} = sequelizeClient;
 
     const {title, content, authorId, postId, userType} = data;
 
-    const post: Post | null = await models.posts.findByPk(
-        postId, {attributes: ['id', 'authorId'], raw: true},
-    );
+    const post: Post | null = await models.posts.findByPk(postId);
 
     if (isNullOrUndefined(post)) {
         throw new BadRequestError('POST_NOT_EXISTS');
@@ -52,22 +50,20 @@ export async function updatePost(data: {
 }
 
 export async function switchHiddenStatus(data: {
-    userType: UserType,
+    userType: UserType | null,
     postId: string,
-    authorId: number
+    authorId: number | null
 }, sequelizeClient: SequelizeClient): Promise<Post> {
     const {models} = sequelizeClient;
 
     const {authorId, postId, userType} = data;
 
-    const post: Post | null = await models.posts.findByPk(
-        postId, {attributes: ['id', 'authorId'], raw: true},
-    );
+    const post: Post | null = await models.posts.findByPk(postId);
 
     if (isNullOrUndefined(post)) {
         throw new BadRequestError('POST_NOT_EXISTS');
     } else if (post.authorId != authorId || userType != UserType.ADMIN) {
-        throw new ForbiddenError('RESTRICTED_TO_EDIT_POST');
+        throw new ForbiddenError('NOT_OWNER_OF_POST');
     }
 
     post.isHidden = !post.isHidden;
@@ -76,8 +72,8 @@ export async function switchHiddenStatus(data: {
 }
 
 export async function fetchManyPosts(data: {
-    userType: UserType,
-    authorId: number
+    userType: UserType | null,
+    authorId: number | null
 }, sequelizeClient: SequelizeClient): Promise<Post[]> {
     const {authorId, userType} = data;
     const {models} = sequelizeClient;
@@ -86,10 +82,10 @@ export async function fetchManyPosts(data: {
 
     return await models.posts.findAll({
         include: [{model: User, as: 'author'}],
-        ...!isAdmin && {
+        ...(!isAdmin || isNullOrUndefined(userType)) && {
             where: {
                 [Op.or]: [
-                    {authorId: Number(authorId)},
+                    {...!(isNullOrUndefined(authorId)) && {authorId: Number(authorId)}},
                     {isHidden: false},
                 ],
             },
@@ -98,17 +94,15 @@ export async function fetchManyPosts(data: {
 }
 
 export async function deletePost(data: {
-    userType: UserType,
+    userType: UserType | null,
     postId: string,
-    authorId: number
+    authorId: number | null
 }, sequelizeClient: SequelizeClient): Promise<Post> {
     const {models} = sequelizeClient;
 
     const {authorId, postId, userType} = data;
 
-    const post: Post | null = await models.posts.findByPk(
-        postId, {attributes: ['id', 'authorId'], raw: true},
-    );
+    const post: Post | null = await models.posts.findByPk(postId);
 
     if (isNullOrUndefined(post)) {
         throw new BadRequestError('POST_NOT_EXISTS');
@@ -122,8 +116,8 @@ export async function deletePost(data: {
 }
 
 export async function fetchOnePost(data: {
-    userType: UserType,
-    authorId: number
+    userType: UserType | null,
+    authorId: number | null
 }, sequelizeClient: SequelizeClient): Promise<Post | null> {
     const {authorId, userType} = data;
     const {models} = sequelizeClient;
@@ -132,11 +126,13 @@ export async function fetchOnePost(data: {
 
     return await models.posts.findOne({
         include: [{model: User, as: 'author'}],
-        where: {
-            [Op.and]: [
-                {authorId: Number(authorId)},
-                {...!isAdmin && {isHidden: false}},
-            ],
+        ...(!isAdmin || isNullOrUndefined(userType)) && {
+            where: {
+                [Op.or]: [
+                    {...!(isNullOrUndefined(authorId)) && {authorId: Number(authorId)}},
+                    {isHidden: false},
+                ],
+            },
         },
     });
 }

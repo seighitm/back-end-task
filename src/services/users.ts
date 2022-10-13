@@ -41,7 +41,7 @@ export async function createUser(data: CreateUserData, sequelizeClient: Sequeliz
 
     const idAdmin = type === UserType.ADMIN;
 
-    if (!idAdmin) {
+    if (idAdmin) {
         await saveToken({userId: user.id, refreshToken: tokens.refreshToken}, sequelizeClient);
     }
 
@@ -74,14 +74,14 @@ export async function loginUser(data: LoginUserData, sequelizeClient: SequelizeC
     return {info: user, tokens};
 }
 
-export async function fetchUsers(userType: UserType, sequelizeClient: SequelizeClient): Promise<User[]> {
+export async function fetchUsers(userType: UserType | null, sequelizeClient: SequelizeClient): Promise<User[]> {
     const {models} = sequelizeClient;
 
     const isAdmin = userType === UserType.ADMIN;
 
     return await models.users.findAll({
-        attributes: isAdmin ? ['id', 'name', 'email'] : ['name', 'email'],
-        ...!isAdmin && {where: {type: {[Op.ne]: UserType.ADMIN}}},
+        attributes: (userType && isAdmin) ? ['id', 'name', 'email'] : ['name', 'email'],
+        ...!(userType && isAdmin) && {where: {type: {[Op.ne]: UserType.ADMIN}}},
         raw: true,
     });
 }

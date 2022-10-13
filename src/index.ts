@@ -11,7 +11,7 @@ import cookieParser from 'cookie-parser';
 
 async function main(): Promise<void> {
     const app = express();
-    console.log(config)
+
     const sequelizeClient = await initSequelizeClient({...config.database});
 
     app.use(cors());

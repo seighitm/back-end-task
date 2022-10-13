@@ -15,18 +15,18 @@ import validate from '../middleware/validate';
 export function initUsersRouter(sequelizeClient: SequelizeClient): Router {
     const router = Router({mergeParams: true});
 
-    const tokenValidation = initTokenValidationRequestHandler(sequelizeClient);
+    const tokenValidation = (optional = false) => initTokenValidationRequestHandler(sequelizeClient, optional);
     const adminValidation = initAdminValidationRequestHandler();
 
     router.route('/')
-        .get(tokenValidation, initListUsersRequestHandler(sequelizeClient))
-        .post(tokenValidation, adminValidation, validate(createUser), initCreateUserRequestHandler(sequelizeClient));
+        .get(tokenValidation(true), initListUsersRequestHandler(sequelizeClient))
+        .post(tokenValidation(), adminValidation, validate(createUser), initCreateUserRequestHandler(sequelizeClient));
     router.route('/login')
         .post(validate(loginSchema), initLoginUserRequestHandler(sequelizeClient));
     router.route('/register')
         .post(validate(registerSchema), initRegisterUserRequestHandler(sequelizeClient));
     router.route('/logout')
-        .post(tokenValidation, initLogoutUserRequestHandler(sequelizeClient));
+        .post(tokenValidation(), initLogoutUserRequestHandler(sequelizeClient));
     router.route('/refresh')
         .post(initRefreshSessionRequestHandler(sequelizeClient));
 

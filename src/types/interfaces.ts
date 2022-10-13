@@ -11,5 +11,5 @@ export interface TokenReesponseData {
 
 export interface RequestAuth {
     token: string;
-    user: User;
+    user: User | {id: null, type: null};
 }
