@@ -4,7 +4,7 @@ import { HttpError } from '../errors';
 
 export function initErrorRequestHandler(): ErrorRequestHandler {
   return function errorRequestHandler(error, req, res, next) {
-    // NOTE(roman): https://expressjs.com/en/guide/error-handling.html
+
     if (res.headersSent) {
       return next(error);
     }

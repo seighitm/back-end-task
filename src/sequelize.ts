@@ -1,23 +1,25 @@
-import { Sequelize, Options } from 'sequelize';
+import {Options, Sequelize} from 'sequelize';
 
 import type {PostsModel, UsersModel} from './repositories/types';
 
-import {setupPostsModel, setupUsersModel} from './models';
+import {setupPostsModel, setupSessionsModel, setupUsersModel} from './models';
+import {SessionModel} from './repositories/sessions';
 
 const postsModelName = 'posts';
 const usersModelName = 'users';
+const sessionModelName = 'sessions';
 
 export async function initSequelizeClient(params: SetupSequelizeParams): Promise<SequelizeClient> {
-  const { dialect, host, port, username, password, database } = params;
+  const {dialect, host, port, username, password, database} = params;
 
-  const sequelizeClient = new Sequelize({ dialect, host, port, username, password, database, logging: false });
+  const sequelizeClient = new Sequelize({dialect, host, port, username, password, database, logging: false});
 
-  setupPostsModel(postsModelName, sequelizeClient);
   setupUsersModel(usersModelName, sequelizeClient);
+  setupPostsModel(postsModelName, sequelizeClient);
+  setupSessionsModel(sessionModelName, sequelizeClient);
 
   associateModels(sequelizeClient.models as unknown as SequelizeModels);
 
-  // NOTE(roman): this creates the tables in the database for add the defined models, if they don't already exist
   await sequelizeClient.sync();
 
   return sequelizeClient as unknown as SequelizeClient;
@@ -37,6 +39,7 @@ type SetupSequelizeParams = Pick<Options, 'dialect' | 'host' | 'port' | 'usernam
 export interface SequelizeModels {
   [usersModelName]: UsersModel;
   [postsModelName]: PostsModel;
+  [sessionModelName]: SessionModel;
 }
 
 interface ModelWithPossibleAssociations {

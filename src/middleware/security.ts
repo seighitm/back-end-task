@@ -1,45 +1,44 @@
-import { RequestHandler } from 'express';
+import {RequestHandler} from 'express';
 
-import type { SequelizeClient } from '../sequelize';
-import type { User } from '../repositories/types';
+import type {SequelizeClient} from '../sequelize';
 
-import { UnauthorizedError, ForbiddenError, NotImplementedError } from '../errors';
-import { isValidToken, extraDataFromToken } from '../utils/security';
+import {ForbiddenError, UnauthorizedError} from '../errors';
+import {isNullOrUndefined} from '../utils/primitiveChecks';
+import {UserType, RequestAuth} from '../types';
+import {extraDataFromAccessToken, isValidAccessToken} from '../services/token';
 
 export function initTokenValidationRequestHandler(sequelizeClient: SequelizeClient): RequestHandler {
   return async function tokenValidationRequestHandler(req, res, next): Promise<void> {
+    const {models} = sequelizeClient;
     try {
-      const { models } = sequelizeClient;
-
       const authorizationHeaderValue = req.header('authorization');
-      if (!authorizationHeaderValue) {
+      if (isNullOrUndefined(authorizationHeaderValue)) {
         throw new UnauthorizedError('AUTH_MISSING');
       }
 
       const [type, token] = authorizationHeaderValue.split(' ');
       if (type?.toLowerCase() !== 'bearer') {
         throw new UnauthorizedError('AUTH_WRONG_TYPE');
-      }
-
-      if (!token) {
+      } else if (isNullOrUndefined(token)) {
         throw new UnauthorizedError('AUTH_TOKEN_MISSING');
       }
 
-      if (!isValidToken(token)) {
+      if (!isValidAccessToken(token)) {
         throw new UnauthorizedError('AUTH_TOKEN_INVALID');
       }
 
-      const { id } = extraDataFromToken(token);
+      const {id} = extraDataFromAccessToken(token);
 
       const user = await models.users.findByPk(id);
-      if (!user) {
+
+      if (isNullOrUndefined(user)) {
         throw new UnauthorizedError('AUTH_TOKEN_INVALID');
       }
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       (req as any).auth = {
         token,
-        user,
+        user: user,
       } as RequestAuth;
 
       return next();
@@ -49,14 +48,11 @@ export function initTokenValidationRequestHandler(sequelizeClient: SequelizeClie
   };
 }
 
-// NOTE(roman): assuming that `tokenValidationRequestHandler` is placed before
 export function initAdminValidationRequestHandler(): RequestHandler {
   return function adminValidationRequestHandler(req, res, next): void {
-    throw new NotImplementedError('ADMIN_VALIDATION_NOT_IMPLEMENTED_YET');
+    const {auth: {user: {type}}} = req as unknown as { auth: RequestAuth };
+    return type === UserType.ADMIN
+        ? next()
+        : next(new ForbiddenError('PROTECTED_ROUTE'));
   };
-}
-
-export interface RequestAuth {
-  token: string;
-  user: User;
 }

@@ -10,6 +10,10 @@ const baseConfig = {
     isDev: env === 'development',
     isTest: env === 'testing',
     port: process.env.APP_PORT || 5000,
+    auth: {
+        accessToken: process.env.ACCESS_TOKEN as string,
+        refreshToken: process.env.REFRESH_TOKEN as string,
+    },
     database: {
         username: process.env.DB_USER || 'postgres',
         password: process.env.DB_PASS || 'postgres',

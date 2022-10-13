@@ -8,3 +8,4 @@ yarn.*
 yarn-*
 build
 *.env
+pnpm-lock.yaml
