@@ -5,9 +5,9 @@ import type { SequelizeClient } from '../sequelize';
 import type { User } from '../repositories/types';
 
 import { BadRequestError, UnauthorizedError } from '../errors';
-import { hashPassword, generateToken } from '../security';
+import { hashPassword, generateToken } from '../utils/security';
 import { initTokenValidationRequestHandler, initAdminValidationRequestHandler, RequestAuth } from '../middleware/security';
-import { UserType } from '../constants';
+import {UserType} from '../types';
 
 export function initUsersRouter(sequelizeClient: SequelizeClient): Router {
   const router = Router({ mergeParams: true });

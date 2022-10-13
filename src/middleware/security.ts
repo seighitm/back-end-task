@@ -4,8 +4,7 @@ import type { SequelizeClient } from '../sequelize';
 import type { User } from '../repositories/types';
 
 import { UnauthorizedError, ForbiddenError, NotImplementedError } from '../errors';
-import { isValidToken, extraDataFromToken } from '../security';
-import { UserType } from '../constants';
+import { isValidToken, extraDataFromToken } from '../utils/security';
 
 export function initTokenValidationRequestHandler(sequelizeClient: SequelizeClient): RequestHandler {
   return async function tokenValidationRequestHandler(req, res, next): Promise<void> {

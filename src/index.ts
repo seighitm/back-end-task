@@ -12,7 +12,10 @@ async function main(): Promise<void> {
 
   const sequelizeClient = await initSequelizeClient({...config.database});
 
+  app.use(cors());
   app.use(express.json());
+  app.use(express.urlencoded({extended: true}));
+  app.use(morgan('dev'));
 
   app.use('/api/v1/users', initUsersRouter(sequelizeClient));
 
@@ -30,3 +33,11 @@ async function main(): Promise<void> {
 }
 
 main().then(() => console.info('app started')).catch(console.error);
+function cors(): any {
+    throw new Error('Function not implemented.');
+}
+
+function morgan(arg0: string): any {
+    throw new Error('Function not implemented.');
+}
+
