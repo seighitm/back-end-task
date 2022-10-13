@@ -9,6 +9,8 @@ import {
     initRefreshSessionRequestHandler,
     initRegisterUserRequestHandler,
 } from '../controllers';
+import {createUser, loginSchema, registerSchema} from '../validators';
+import validate from '../middleware/validate';
 
 export function initUsersRouter(sequelizeClient: SequelizeClient): Router {
     const router = Router({mergeParams: true});
@@ -17,15 +19,12 @@ export function initUsersRouter(sequelizeClient: SequelizeClient): Router {
     const adminValidation = initAdminValidationRequestHandler();
 
     router.route('/')
-        .get(
-            tokenValidation, adminValidation,
-            initListUsersRequestHandler(sequelizeClient))
-        .post(tokenValidation, adminValidation, initCreateUserRequestHandler(sequelizeClient));
-
+        .get(tokenValidation, initListUsersRequestHandler(sequelizeClient))
+        .post(tokenValidation, adminValidation, validate(createUser), initCreateUserRequestHandler(sequelizeClient));
     router.route('/login')
-        .post(initLoginUserRequestHandler(sequelizeClient));
+        .post(validate(loginSchema), initLoginUserRequestHandler(sequelizeClient));
     router.route('/register')
-        .post(initRegisterUserRequestHandler(sequelizeClient));
+        .post(validate(registerSchema), initRegisterUserRequestHandler(sequelizeClient));
     router.route('/logout')
         .post(tokenValidation, initLogoutUserRequestHandler(sequelizeClient));
     router.route('/refresh')

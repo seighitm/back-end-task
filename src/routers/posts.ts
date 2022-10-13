@@ -9,6 +9,8 @@ import {
     initSwitchHiddenStatusRequestHandler,
     initUpdatePostRequestHandler,
 } from '../controllers';
+import validate from '../middleware/validate';
+import {createPost} from '../validators';
 
 export function initPostsRouter(sequelizeClient: SequelizeClient): Router {
     const router = Router({mergeParams: true});
@@ -23,9 +25,8 @@ export function initPostsRouter(sequelizeClient: SequelizeClient): Router {
         .delete(tokenValidation, initDeletePostRequestHandler(sequelizeClient));
 
     router.route('/')
-        .post(tokenValidation, initCreatePostRequestHandler(sequelizeClient))
+        .post(tokenValidation, validate(createPost), initCreatePostRequestHandler(sequelizeClient))
         .get(tokenValidation, initListPostsRequestHandler(sequelizeClient));
 
     return router;
 }
-
