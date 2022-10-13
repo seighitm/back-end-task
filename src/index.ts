@@ -6,7 +6,7 @@ import {initErrorRequestHandler, initNotFoundRequestHandler} from './middleware'
 import config from './config';
 import cors from 'cors';
 import morgan from 'morgan';
-
+import { initPostsRouter } from './routers/posts';
 import cookieParser from 'cookie-parser';
 
 async function main(): Promise<void> {
@@ -21,6 +21,7 @@ async function main(): Promise<void> {
     app.use(morgan('dev'));
 
     app.use('/api/v1/users', initUsersRouter(sequelizeClient));
+    app.use('/api/v1/posts', initPostsRouter(sequelizeClient));
 
     app.use('/', initNotFoundRequestHandler());
 

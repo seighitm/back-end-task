@@ -1,11 +1,10 @@
-import { HttpError } from './http';
+import {HttpError} from './http';
 
 export class NotFoundError extends HttpError {
-  path: string;
+    path: string;
 
-  constructor(message: string, method: string, path: string) {
-    super(message, 404);
-
-    this.path = path;
-  }
+    constructor(message: string, method: string, path: string) {
+        super(message, 404);
+        this.path = path;
+    }
 }

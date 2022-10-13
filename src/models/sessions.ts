@@ -1,5 +1,4 @@
 import {DataTypes, Sequelize} from 'sequelize';
-
 import {Session} from '../repositories/sessions';
 
 export function setupSessionsModel(modelName: string, sequelize: Sequelize): void {

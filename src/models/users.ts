@@ -1,7 +1,7 @@
-import { Sequelize, DataTypes } from 'sequelize';
+import {DataTypes, Sequelize} from 'sequelize';
 
-import { User } from '../repositories/users';
-import {UserType} from '../types';
+import {User} from '../repositories/users';
+import {UserType} from '../types/enums';
 
 export function setupUsersModel(modelName: string, sequelize: Sequelize): void {
   User.init({
